@@ -1,25 +1,27 @@
-class Stat {
-  final String label;
-  final int value;
-  final DateTime? updatedAt;
+class PlayerStats {
+  final int userId;
+  final int victories;
+  final double experience;
+  final bool bossDefeated;
 
-  Stat({
-    required this.label,
-    required this.value,
-    this.updatedAt,
+  PlayerStats({
+    required this.userId,
+    required this.victories,
+    required this.experience,
+    required this.bossDefeated,
   });
 
-  factory Stat.fromJson(Map<String, dynamic> j) => Stat(
-        label: j['label'],
-        value: j['value'],
-        updatedAt: j['updated_at'] != null
-            ? DateTime.parse(j['updated_at'])
-            : null,
+  factory PlayerStats.fromJson(Map<String, dynamic> json) => PlayerStats(
+        userId: json['user_id'],
+        victories: json['victories'] ?? 0,
+        experience: (json['experience'] ?? 0).toDouble(),
+        bossDefeated: json['boss_defeated'] ?? false,
       );
 
   Map<String, dynamic> toJson() => {
-        'label': label,
-        'value': value,
-        if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
+        'user_id': userId,
+        'victories': victories,
+        'experience': experience,
+        'boss_defeated': bossDefeated,
       };
 }

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
 import 'ui/pages/login_page.dart';
 import 'ui/pages/register_page.dart';
-import 'ui/pages/home_page.dart';
 import 'ui/pages/notification_page.dart';
+import 'ui/pages/main_scaffold.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -12,18 +12,19 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dungeon Admin',
+      title: 'Umbral App',
       theme: AppTheme.dungeonTheme(),
       initialRoute: '/',
       routes: {
         '/': (c) => const LoginPage(),
+        '/login': (c) => const LoginPage(),
         '/register': (c) => const RegisterPage(),
-        '/home': (c) => const HomePage(),
+        '/main': (c) => const MainScaffold(), // <--- Nueva ruta principal
         '/notifications': (c) => const NotificationPage(),
-        // agrega más rutas
       },
     );
   }

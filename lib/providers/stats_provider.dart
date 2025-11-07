@@ -8,11 +8,11 @@ final statsRepoProvider = Provider(
 );
 
 final statsProvider =
-    StateNotifierProvider<StatsNotifier, AsyncValue<List<Stat>>>(
+    StateNotifierProvider<StatsNotifier, AsyncValue<PlayerStats?>>(
   (ref) => StatsNotifier(ref),
 );
 
-class StatsNotifier extends StateNotifier<AsyncValue<List<Stat>>> {
+class StatsNotifier extends StateNotifier<AsyncValue<PlayerStats?>> {
   final Ref ref;
 
   StatsNotifier(this.ref) : super(const AsyncValue.loading()) {
@@ -21,25 +21,17 @@ class StatsNotifier extends StateNotifier<AsyncValue<List<Stat>>> {
 
   Future<void> load() async {
     try {
+      final auth = ref.read(authStateProvider).value;
+      if (auth == null) {
+        state = AsyncValue.error('No hay usuario autenticado', StackTrace.current);
+        return;
+      }
+
       final repo = ref.read(statsRepoProvider);
-      final list = await repo.getStats();
-      state = AsyncValue.data(list);
+      final stats = await repo.getStats(auth.id);
+      state = AsyncValue.data(stats);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
-
-  Future<void> refreshStat(String label) async {
-  try {
-    final stat = await ref.read(statsRepoProvider).getStatByLabel(label);
-    if (state is AsyncData<List<Stat>>) {
-      final current = (state as AsyncData<List<Stat>>).value;
-      final updated = current.map((s) => s.label == stat.label ? stat : s).toList();
-      state = AsyncValue.data(updated);
-    }
-  } catch (e, st) {
-    state = AsyncValue.error(e, st);
-  }
-}
-
 }

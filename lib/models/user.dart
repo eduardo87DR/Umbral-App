@@ -13,6 +13,8 @@ class User {
     role: json['role'] ?? 'user',
   );
 
+  get createdAt => null;
+
   Map<String,dynamic> toJson() => {
     'id': id,
     'username': username,

@@ -8,14 +8,16 @@ class ApiClient {
 
   ApiClient({required this.baseUrl});
 
-  Future<Map<String, String>> _headers() async {
+  Future<Map<String, String>> _headers({bool isForm = false}) async {
     final token = await storage.read(key: 'access_token');
-    final headers = {'Content-Type': 'application/json'};
+    final headers = {
+      'Content-Type': isForm ? 'application/x-www-form-urlencoded' : 'application/json'
+    };
     if (token != null) headers['Authorization'] = 'Bearer $token';
     return headers;
   }
 
-  Future<dynamic> get(String path, {Map<String,String>? query}) async {
+  Future<dynamic> get(String path, {Map<String, String>? query}) async {
     final uri = Uri.parse('$baseUrl$path').replace(queryParameters: query);
     final headers = await _headers();
     final res = await http.get(uri, headers: headers);
@@ -29,6 +31,13 @@ class ApiClient {
     return _process(res);
   }
 
+  Future<dynamic> postForm(String path, Map<String, String> body) async {
+    final uri = Uri.parse('$baseUrl$path');
+    final headers = await _headers(isForm: true);
+    final res = await http.post(uri, headers: headers, body: body);
+    return _process(res);
+  }
+
   Future<dynamic> patch(String path, dynamic body) async {
     final uri = Uri.parse('$baseUrl$path');
     final headers = await _headers();
@@ -38,8 +47,10 @@ class ApiClient {
 
   dynamic _process(http.Response res) {
     final code = res.statusCode;
-    final body = res.body.isEmpty ? '{}' : json.decode(res.body);
+    final body = res.body.isEmpty ? {} : json.decode(res.body);
+
     if (code >= 200 && code < 300) return body;
+
     throw ApiException(code, body);
   }
 }
