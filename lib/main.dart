@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         '/': (c) => const LoginPage(),
         '/login': (c) => const LoginPage(),
         '/register': (c) => const RegisterPage(),
-        '/main': (c) => const MainScaffold(), // <--- Nueva ruta principal
+        '/main': (c) => const MainScaffold(), 
         '/notifications': (c) => const NotificationPage(),
       },
     );

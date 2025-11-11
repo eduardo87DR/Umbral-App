@@ -16,6 +16,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _passCtrl = TextEditingController();
   bool _loading = false;
   String? _error;
+  bool _obscurePass = true; 
 
   final _formKey = GlobalKey<FormState>();
 
@@ -142,7 +143,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         controller: _userCtrl,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          labelText: 'Usuario',
+                          labelText: 'Nombre de Usuario',
                           labelStyle:
                               const TextStyle(color: Colors.white70, fontSize: 14),
                           prefixIcon: const Icon(Icons.person_outline,
@@ -166,7 +167,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _passCtrl,
-                        obscureText: true,
+                        obscureText: _obscurePass, // Usa el estado para ocultar/mostrar
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'Contraseña',
@@ -174,6 +175,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               const TextStyle(color: Colors.white70, fontSize: 14),
                           prefixIcon:
                               const Icon(Icons.lock_outline, color: Colors.white70),
+                          // Agregamos el icono de visibilidad
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePass
+                                  ? Icons.visibility_off // Oculta
+                                  : Icons.visibility, // Visible
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            onPressed: () =>
+                                setState(() => _obscurePass = !_obscurePass), 
+                          ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide:

@@ -5,7 +5,7 @@ class GuidesRepository {
   final ApiClient api;
   GuidesRepository(this.api);
 
-  /// Obtener lista de guías (con paginación opcional)
+  /// Obtener lista de guías 
   Future<List<Guide>> getGuides({int limit = 20, int offset = 0}) async {
     final res = await api.get('/guides/', query: {
       'limit': '$limit',

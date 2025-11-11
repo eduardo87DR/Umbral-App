@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const Color background = Color(0xFF0B0B0E);
   static const Color card = Color(0xFF101217);
-  static const Color accent = Color(0xFF9B7B3E); // oro envejecido
+  static const Color accent = Color(0xFF9B7B3E); 
   static const Color danger = Color(0xFFB23A3A);
   static const Color textPrimary = Color(0xFFECE6D6);
 
