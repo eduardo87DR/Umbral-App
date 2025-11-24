@@ -29,7 +29,7 @@ class DungeonCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Row(
             children: [
-              // 🧭 Texto principal
+              // Texto principal
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

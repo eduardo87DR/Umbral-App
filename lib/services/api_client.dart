@@ -45,6 +45,14 @@ class ApiClient {
     return _process(res);
   }
 
+    Future<dynamic> delete(String path) async {
+    final uri = Uri.parse('$baseUrl$path');
+    final headers = await _headers();
+    final res = await http.delete(uri, headers: headers);
+    return _process(res);
+  }
+
+
   dynamic _process(http.Response res) {
     final code = res.statusCode;
     final body = res.body.isEmpty ? {} : json.decode(res.body);

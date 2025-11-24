@@ -3,16 +3,18 @@ import 'home_page.dart';
 import 'events_page.dart';
 import 'stats_page.dart';
 import 'guides_page.dart';
-import 'profile_page.dart';
+import 'notification_page.dart';
+import '../shared/profile_page.dart';
 
-class MainScaffold extends StatefulWidget {
-  const MainScaffold({Key? key}) : super(key: key);
+
+class UserScaffold extends StatefulWidget {
+  const UserScaffold({Key? key}) : super(key: key);
 
   @override
-  State<MainScaffold> createState() => _MainScaffoldState();
+  State<UserScaffold> createState() => _UserScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> {
+class _UserScaffoldState extends State<UserScaffold> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
@@ -20,7 +22,9 @@ class _MainScaffoldState extends State<MainScaffold> {
     EventsPage(),
     StatsPage(),
     GuidesPage(),
+    NotificationPage(),
     ProfilePage(),
+
   ];
 
   @override
@@ -42,6 +46,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Eventos'),
           BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Stats'),
           BottomNavigationBarItem(icon: Icon(Icons.menu_book_rounded), label: 'Guía'),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notifs'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
         ],
       ),

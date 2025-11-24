@@ -37,6 +37,6 @@ class GuidesRepository {
 
   /// Eliminar una guía
   Future<void> deleteGuide(int id) async {
-    await api.post('/guides/$id/delete', {});
+    await api.delete('/guides/$id');
   }
 }

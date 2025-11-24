@@ -33,6 +33,6 @@ class EventsRepository {
   }
 
   Future<void> deleteEvent(int id) async {
-    await api.post('/events/$id/delete', {});
+    await api.delete('/events/$id');
   }
 }

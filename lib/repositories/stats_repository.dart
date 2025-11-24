@@ -9,4 +9,5 @@ class StatsRepository {
     final res = await api.get('/stats/$userId');
     return PlayerStats.fromJson(res);
   }
+
 }

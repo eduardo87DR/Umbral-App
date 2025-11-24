@@ -1,58 +1,74 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/auth_provider.dart';
-import '../widgets/loading_widget.dart';
+import '../../../providers/auth_provider.dart';
+import '../../widgets/loading_widget.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class RegisterPage extends ConsumerStatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _RegisterPageState extends ConsumerState<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
   final _userCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _loading = false;
   String? _error;
-  bool _obscurePass = true; 
+  bool _obscurePass = true;
 
-  final _formKey = GlobalKey<FormState>();
+  Future<void> _handleRegister() async {
+  if (!_formKey.currentState!.validate()) return;
 
-  Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+  setState(() {
+    _loading = true;
+    _error = null;
+  });
 
-    setState(() {
-      _loading = true;
-      _error = null;
+  try {
+    // Hacemos la petición manualmente con control de respuesta
+    final repo = ref.read(authRepoProvider);
+    await repo.api.post('/auth/register', {
+      'username': _userCtrl.text.trim(),
+      'email': _emailCtrl.text.trim(),
+      'password': _passCtrl.text.trim(),
     });
 
-    try {
-      await ref
-          .read(authStateProvider.notifier)
-          .login(_userCtrl.text.trim(), _passCtrl.text.trim());
+    //Login automatico
+    await ref.read(authStateProvider.notifier).login(
+      _userCtrl.text.trim(),
+      _passCtrl.text.trim(),
+    );
 
-      final authState = ref.read(authStateProvider);
-
-      if (authState is AsyncData && authState.value != null) {
-        if (mounted) {
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil('/main', (route) => false);
-        }
-      } else {
-        setState(() {
-          _error = 'Las credenciales no coinciden con ninguna cuenta existente';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _error = 'Las credenciales no coinciden con ninguna cuenta existente';
-      });
-    } finally {
-      setState(() => _loading = false);
+    // Si llega aquí, significa que el registro fue exitoso
+    if (mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/main', (route) => false);
     }
+
+  } catch (e) {
+    String message = 'No se pudo completar el registro.';
+
+    // Detectar si el backend devolvió conflicto de usuario existente
+    final error = e.toString().toLowerCase();
+    if (error.contains('already exists') ||
+        error.contains('400') ||
+        error.contains('username') && error.contains('exists')) {
+      message = 'El nombre de usuario o correo ya está registrado.';
+    } else if (error.contains('network') || error.contains('connection')) {
+      message = 'Error de conexión. Verifica tu red.';
+    }
+
+    setState(() {
+      _error = message;
+    });
+  } finally {
+    setState(() => _loading = false);
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +76,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Puerta del Guardián'),
+        title: const Text('Ritual de Ingreso'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -68,6 +84,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
+          // Fondo degradado
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -77,6 +94,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
           ),
+          // Efecto radiante
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -90,13 +108,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
           ),
+          // Efecto blur
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Container(color: Colors.black.withOpacity(0.3)),
           ),
+          // Contenido
           Center(
             child: Container(
-              width: 350,
+              width: 360,
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(20),
@@ -120,18 +140,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
-                        Icons.shield_moon_outlined,
+                        Icons.auto_fix_high_outlined,
                         color: Colors.amberAccent,
                         size: 60,
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Ingreso al Umbral',
+                        'Forja tu Identidad',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               color: Colors.amberAccent,
                               fontWeight: FontWeight.bold,
-                              shadows: [
-                                const Shadow(
+                              shadows: const [
+                                Shadow(
                                   color: Colors.deepPurpleAccent,
                                   blurRadius: 8,
                                 )
@@ -139,15 +159,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                       ),
                       const SizedBox(height: 24),
+                      // Usuario
                       TextFormField(
                         controller: _userCtrl,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          labelText: 'Nombre de Usuario',
-                          labelStyle:
-                              const TextStyle(color: Colors.white70, fontSize: 14),
-                          prefixIcon: const Icon(Icons.person_outline,
-                              color: Colors.white70),
+                          labelText: 'Nombre de Aventurero',
+                          labelStyle: const TextStyle(color: Colors.white70),
+                          prefixIcon:
+                              const Icon(Icons.person_outline, color: Colors.white70),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide:
@@ -161,30 +181,58 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           filled: true,
                           fillColor: Colors.white.withOpacity(0.08),
                         ),
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'Campo obligatorio' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Campo obligatorio' : null,
                       ),
                       const SizedBox(height: 16),
+                      // Correo
                       TextFormField(
-                        controller: _passCtrl,
-                        obscureText: _obscurePass, // Usa el estado para ocultar/mostrar
+                        controller: _emailCtrl,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          labelText: 'Contraseña',
-                          labelStyle:
-                              const TextStyle(color: Colors.white70, fontSize: 14),
+                          labelText: 'Correo Mágico',
+                          labelStyle: const TextStyle(color: Colors.white70),
+                          prefixIcon:
+                              const Icon(Icons.email_outlined, color: Colors.white70),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: Colors.deepPurpleAccent),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: Colors.amberAccent, width: 2),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.08),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Campo obligatorio';
+                          if (!v.contains('@')) return 'Correo no válido';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      // Contraseña
+                      TextFormField(
+                        controller: _passCtrl,
+                        obscureText: _obscurePass,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Clave Secreta',
+                          labelStyle: const TextStyle(color: Colors.white70),
                           prefixIcon:
                               const Icon(Icons.lock_outline, color: Colors.white70),
-                          // Agregamos el icono de visibilidad
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePass
-                                  ? Icons.visibility_off // Oculta
-                                  : Icons.visibility, // Visible
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               color: Colors.deepPurpleAccent,
                             ),
                             onPressed: () =>
-                                setState(() => _obscurePass = !_obscurePass), 
+                                setState(() => _obscurePass = !_obscurePass),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -199,48 +247,51 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           filled: true,
                           fillColor: Colors.white.withOpacity(0.08),
                         ),
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'Campo obligatorio' : null,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Campo obligatorio';
+                          if (v.length < 6) return 'Mínimo 6 caracteres';
+                          return null;
+                        },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       if (_error != null)
                         Text(
                           _error!,
-                          textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.redAccent,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurpleAccent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 80, vertical: 14),
+                              horizontal: 70, vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
                           shadowColor: Colors.purpleAccent.withOpacity(0.7),
                           elevation: 10,
                         ),
-                        onPressed: _loading ? null : _handleLogin,
+                        onPressed: _loading ? null : _handleRegister,
                         child: _loading
-                            ? const LoadingWidget(message: 'Entrando al calabozo...')
+                            ? const LoadingWidget(message: 'Forjando identidad...')
                             : const Text(
-                                'Entrar',
+                                'Registrarme',
                                 style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.2),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
                               ),
                       ),
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: () => Navigator.of(context)
-                            .pushReplacementNamed('/register'),
+                            .pushReplacementNamed('/login'),
                         child: const Text(
-                          'Registrarme',
+                          'Ya tengo cuenta',
                           style: TextStyle(
                             color: Colors.white70,
                             decoration: TextDecoration.underline,

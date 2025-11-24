@@ -9,7 +9,7 @@ class DungeonAppBar extends StatelessWidget implements PreferredSizeWidget {
     Key? key,
     required this.title,
     this.actions,
-    this.centerTitle = true,
+    this.centerTitle = true, required TabBar bottom,
   }) : super(key: key);
 
   @override

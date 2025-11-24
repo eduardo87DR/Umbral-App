@@ -4,6 +4,10 @@ class AppNotification {
   final String title;
   final String body;
   final bool read;
+  final bool isRequest;
+  final bool handled;
+  final int? eventId;
+  final int? requestedBy;
   final DateTime createdAt;
 
   AppNotification({
@@ -12,6 +16,10 @@ class AppNotification {
     required this.title,
     required this.body,
     required this.read,
+    required this.isRequest,
+    required this.handled,
+    this.eventId,
+    this.requestedBy,
     required this.createdAt,
   });
 
@@ -21,6 +29,10 @@ class AppNotification {
         title: j['title'] ?? '',
         body: j['body'] ?? '',
         read: j['read'] ?? false,
+        isRequest: j['is_request'] ?? false,
+        handled: j['handled'] ?? false,
+        eventId: j['event_id'],
+        requestedBy: j['requested_by'],
         createdAt: DateTime.parse(j['created_at']),
       );
 
@@ -30,6 +42,10 @@ class AppNotification {
         'title': title,
         'body': body,
         'read': read,
+        'is_request': isRequest,
+        'handled': handled,
+        'event_id': eventId,
+        'requested_by': requestedBy,
         'created_at': createdAt.toIso8601String(),
       };
 }
